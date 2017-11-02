@@ -49,6 +49,10 @@ class AOperationProtoCharacter : public ACharacter
 	UMaterialInterface* decal;
 	UParticleSystem* particleSystem;
 
+	// To be moved when more weapons are implemented
+	int ammoCount = 10;
+	int maxAmmo = 70;
+
 public:
 	AOperationProtoCharacter();
 
@@ -76,6 +80,9 @@ public:
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	class USoundBase* FireSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	class USoundBase* EmptySound;
 
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
@@ -143,5 +150,8 @@ public:
 	/** Returns FirstPersonCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
+	int GetAmmoCount();
+	int GetMax();
+	void AddAmmo(int amount);
 };
 

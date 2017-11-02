@@ -180,63 +180,62 @@ void AOperationProtoCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 void AOperationProtoCharacter::OnFire()
 {
-	// try and fire a projectile
-	if (ProjectileClass != NULL)
+	UWorld* const World = GetWorld();
+
+	if (ammoCount > 0)
 	{
-		UWorld* const World = GetWorld();
 		if (World != NULL)
 		{
-			if (bUsingMotionControllers)
+			// Raycast to object you are aiming at...
+
+			FHitResult Hit;
+
+			float Pitch = Mesh1P->GetComponentRotation().Pitch;
+			float Yaw = FP_Gun->GetComponentRotation().Yaw + 90;
+
+			FRotator Rot = FRotator(Pitch, Yaw, 0);
+
+			FVector Start = FP_MuzzleLocation->GetComponentLocation();
+			FVector End = Start + Rot.Vector() * 100000;
+
+			GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility);
+
+
+			if (Hit.Actor != nullptr)
 			{
-				/*const FRotator SpawnRotation = VR_MuzzleLocation->GetComponentRotation();
-				const FVector SpawnLocation = VR_MuzzleLocation->GetComponentLocation();
-				World->SpawnActor<AOperationProtoProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);*/
-			}
-			else
-			{
-				// Raycast to object you are aiming at...
-				
-				FHitResult Hit;
+				// Spawn a decal on the surface you hit, and maybe play a partice effect?
 
-				float Pitch = Mesh1P->GetComponentRotation().Pitch;
-				float Yaw = FP_Gun->GetComponentRotation().Yaw + 90;
+				UDecalComponent* DecalComponent = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decal, FVector(10, 10, 10), Hit.Location, Hit.ImpactNormal.ToOrientationRotator());
+				DecalComponent->SetFadeScreenSize(0.0001f);
 
-				FRotator Rot = FRotator(Pitch, Yaw, 0);
-
-				FVector Start = FP_MuzzleLocation->GetComponentLocation();
-				FVector End = Start + Rot.Vector() * 100000;
-
-				GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility);
-				
-
-				if (Hit.Actor != nullptr)
-				{
-					// Spawn a decal on the surface you hit, and maybe play a partice effect?
-					
-					UDecalComponent* DecalComponent = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decal, FVector(10, 10, 10), Hit.Location, Hit.ImpactNormal.ToOrientationRotator());
-					DecalComponent->SetFadeScreenSize(0.0001f);
-
-					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), particleSystem, Hit.Location, Hit.ImpactNormal.ToOrientationRotator(), true);
-					UE_LOG(LogTemp, Warning, TEXT("Spawned Decal"));
-				}
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), particleSystem, Hit.Location, Hit.ImpactNormal.ToOrientationRotator(), true);
+				UE_LOG(LogTemp, Warning, TEXT("Spawned Decal"));
 			}
 		}
-	}
 
-	// try and play the sound if specified
-	if (FireSound != NULL)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-	}
-
-	// try and play a firing animation if specified
-	if (FireAnimation != NULL)
-	{
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if (AnimInstance != NULL)
+		// try and play the sound if specified
+		if (FireSound != NULL)
 		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
+			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+		}
+
+		// try and play a firing animation if specified
+		if (FireAnimation != NULL)
+		{
+			// Get the animation object for the arms mesh
+			UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+			if (AnimInstance != NULL)
+			{
+				AnimInstance->Montage_Play(FireAnimation, 1.f);
+			}
+		}
+		ammoCount--;
+	}
+	else
+	{
+		if (EmptySound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this, EmptySound, GetActorLocation());
 		}
 	}
 }
@@ -352,4 +351,22 @@ bool AOperationProtoCharacter::EnableTouchscreenMovement(class UInputComponent* 
 		//PlayerInputComponent->BindTouch(EInputEvent::IE_Repeat, this, &AOperationProtoCharacter::TouchUpdate);
 	}
 	return bResult;
+}
+
+int AOperationProtoCharacter::GetAmmoCount()
+{
+	return ammoCount;
+}
+
+int AOperationProtoCharacter::GetMax()
+{
+	return maxAmmo;
+}
+
+void AOperationProtoCharacter::AddAmmo(int amount)
+{
+	if (ammoCount + amount <= maxAmmo)
+		ammoCount += amount;
+	else
+		ammoCount = maxAmmo;
 }

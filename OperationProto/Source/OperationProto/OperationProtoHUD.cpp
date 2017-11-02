@@ -11,9 +11,41 @@ AOperationProtoHUD::AOperationProtoHUD()
 {
 	// Set the crosshair texture
 	static ConstructorHelpers::FObjectFinder<UTexture2D> CrosshairTexObj(TEXT("/Game/FirstPerson/Textures/FirstPersonCrosshair"));
-	CrosshairTex = CrosshairTexObj.Object;
+	static ConstructorHelpers::FClassFinder<UUserWidget> HudLoader(TEXT("/Game/FirstPerson/UI/HUD"));
+
+	if(CrosshairTexObj.Succeeded())
+		CrosshairTex = CrosshairTexObj.Object;
+
+	if (HudLoader.Succeeded())
+	{
+		HudWidgetTemplate = HudLoader.Class;
+	}
 }
 
+void AOperationProtoHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Get the controlled character
+	ControlledCharacter = Cast<AOperationProtoCharacter>(GetWorld()->GetFirstPlayerController()->GetControlledPawn());
+
+	UE_LOG(LogTemp, Warning, TEXT("Beginplay"));
+
+	if (HudWidgetTemplate)
+	{
+		HudWidget = CreateWidget<UUserWidget>(GetWorld()->GetFirstPlayerController(), HudWidgetTemplate);
+
+		if (HudWidget)
+		{
+			HudWidget->AddToViewport();
+		}
+	}
+}
+
+int AOperationProtoHUD::GetAmmoCount()
+{
+	return ControlledCharacter->GetAmmoCount();
+}
 
 void AOperationProtoHUD::DrawHUD()
 {
@@ -33,3 +65,5 @@ void AOperationProtoHUD::DrawHUD()
 	TileItem.BlendMode = SE_BLEND_Translucent;
 	Canvas->DrawItem( TileItem );
 }
+
+
