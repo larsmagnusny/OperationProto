@@ -31,7 +31,7 @@ void AAmmoBox::OnPickup(AActor* OurActor, AActor * OtherActor)
 		if (Character->GetAmmoCount() + ammoAmount <= Character->GetMax())
 		{
 			Character->AddAmmo(ammoAmount);
-			Destroy(this); // CRASH?!
+			Destroy(this); // This can crash?
 		}
 		else
 		{

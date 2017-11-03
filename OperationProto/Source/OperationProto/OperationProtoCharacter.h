@@ -53,6 +53,10 @@ class AOperationProtoCharacter : public ACharacter
 	int ammoCount = 10;
 	int maxAmmo = 70;
 
+	float FireTimer = 0.f;
+	float FireCooldown = 0.2f;
+	bool hasFired = false;
+
 public:
 	AOperationProtoCharacter();
 

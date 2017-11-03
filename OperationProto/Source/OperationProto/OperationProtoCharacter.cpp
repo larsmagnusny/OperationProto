@@ -121,6 +121,21 @@ void AOperationProtoCharacter::BeginPlay()
 
 void AOperationProtoCharacter::Tick(float DeltaTime)
 {
+	// Calculate firecooldown
+	if (hasFired)
+	{
+		if (FireTimer < FireCooldown)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("On Cooldown..."));
+			FireTimer += DeltaTime;
+		}
+		else
+		{
+			FireTimer = 0.f;
+			hasFired = false;
+		}
+	}
+
 	FHitResult Hit;
 
 	float Pitch = Mesh1P->GetComponentRotation().Pitch;
@@ -182,6 +197,9 @@ void AOperationProtoCharacter::OnFire()
 {
 	UWorld* const World = GetWorld();
 
+	if (hasFired)
+		return;
+
 	if (ammoCount > 0)
 	{
 		if (World != NULL)
@@ -238,6 +256,8 @@ void AOperationProtoCharacter::OnFire()
 			UGameplayStatics::PlaySoundAtLocation(this, EmptySound, GetActorLocation());
 		}
 	}
+
+	hasFired = true;
 }
 
 void AOperationProtoCharacter::OnResetVR()
