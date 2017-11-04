@@ -37,7 +37,7 @@ private:
 	class USceneComponent* FP_MuzzleLocation;
 
 	UMaterialInterface* decal = nullptr;
-	UParticleSystem* particleSystem = nullptr;
+	UParticleSystem** particleSystems;
 
 	UPROPERTY(EditAnywhere, Category = Gameplay)
 	int ammoCount = 8;

@@ -5,10 +5,12 @@
 #include "Animation/AnimInstance.h"
 #include "Components/DecalComponent.h"
 #include "Components/AudioComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Particles/ParticleSystem.h"
 #include "Sound/SoundCue.h"
+#include "Engine/StaticMeshActor.h"
 
 UHandGun::UHandGun()
 {
@@ -24,7 +26,9 @@ UHandGun::UHandGun()
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> DecalLoader(TEXT("MaterialInterface'/Game/FirstPerson/Textures/Decals/BulletHoledecal.BulletHoledecal'"));
 
 	// Load Particle System
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System.Hit_System'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader01(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System.Hit_System'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader02(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System_Wood.Hit_System_Wood'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader03(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System_Metal.Hit_System_Metal'"));
 
 	// Load misc
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshLoader(TEXT("SkeletalMesh'/Game/FirstPerson/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"));
@@ -40,7 +44,11 @@ UHandGun::UHandGun()
 	FireAnimation = FireAnimationLoader.Object;
 
 	decal = DecalLoader.Object;
-	particleSystem = ParticleLoader.Object;
+	particleSystems = new UParticleSystem*[3];
+
+	particleSystems[0] = ParticleLoader01.Object;
+	particleSystems[1] = ParticleLoader02.Object;
+	particleSystems[2] = ParticleLoader03.Object;
 
 	GunSoundPlayer = CreateDefaultSubobject<UAudioComponent>(TEXT("HandGunSound"));
 	GunSoundPlayer->bAutoActivate = false;
@@ -110,6 +118,31 @@ void UHandGun::Fire(bool& canFireAfter)
 		if (Hit.Actor != nullptr)
 		{
 			// Spawn a decal on the surface you hit, and maybe play a partice effect?
+			// Get the physics Material name, and spawn a fitting particlesystem based off that...
+
+			UParticleSystem* particleSystem = nullptr;
+
+			if (Hit.GetActor()->ActorHasTag(FName("Wood")))
+			{
+				particleSystem = particleSystems[1];
+			}
+			else if (Hit.GetActor()->ActorHasTag(FName("Metal")))
+			{
+				particleSystem = particleSystems[2];
+
+				// Also play the sound
+				UAudioComponent* Comp = Cast<UAudioComponent>(Hit.GetActor()->GetComponentByClass(UAudioComponent::StaticClass()));
+
+				if (Comp)
+				{
+					if(!Comp->IsPlaying())
+						Comp->Play();
+				}
+			}
+			else
+			{
+				particleSystem = particleSystems[0];
+			}
 
 			UDecalComponent* DecalComponent = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decal, FVector(10, 10, 10), Hit.Location, Hit.ImpactNormal.ToOrientationRotator());
 			DecalComponent->SetFadeScreenSize(0.0001f);

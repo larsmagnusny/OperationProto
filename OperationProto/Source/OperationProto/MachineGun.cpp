@@ -23,7 +23,9 @@ UMachineGun::UMachineGun()
 	// Load Decal
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> DecalLoader(TEXT("MaterialInterface'/Game/FirstPerson/Textures/Decals/BulletHoledecal.BulletHoledecal'"));
 	// Load Particle System
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System.Hit_System'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader01(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System.Hit_System'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader02(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System_Wood.Hit_System_Wood'"));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader03(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System_Metal.Hit_System_Metal'"));
 
 	// Load misc
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshLoader(TEXT("SkeletalMesh'/Game/FirstPerson/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"));
@@ -39,7 +41,11 @@ UMachineGun::UMachineGun()
 	FireAnimation = FireAnimationLoader.Object;
 
 	decal = DecalLoader.Object;
-	particleSystem = ParticleLoader.Object;
+	particleSystems = new UParticleSystem*[3];
+
+	particleSystems[0] = ParticleLoader01.Object;
+	particleSystems[1] = ParticleLoader02.Object;
+	particleSystems[2] = ParticleLoader03.Object;
 
 	GunSoundPlayer = CreateDefaultSubobject<UAudioComponent>(TEXT("MachineGunSound"));
 	GunSoundPlayer->bAutoActivate = false;
@@ -109,6 +115,29 @@ void UMachineGun::Fire(bool & canFireAfter)
 		if (Hit.Actor != nullptr)
 		{
 			// Spawn a decal on the surface you hit, and maybe play a partice effect?
+			UParticleSystem* particleSystem = nullptr;
+
+			if (Hit.GetActor()->ActorHasTag(FName("Wood")))
+			{
+				particleSystem = particleSystems[1];
+			}
+			else if (Hit.GetActor()->ActorHasTag(FName("Metal")))
+			{
+				particleSystem = particleSystems[2];
+
+				// Also play the sound
+				UAudioComponent* Comp = Cast<UAudioComponent>(Hit.GetActor()->GetComponentByClass(UAudioComponent::StaticClass()));
+
+				if (Comp)
+				{
+					if (!Comp->IsPlaying())
+						Comp->Play();
+				}
+			}
+			else
+			{
+				particleSystem = particleSystems[0];
+			}
 
 			UDecalComponent* DecalComponent = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decal, FVector(10, 10, 10), Hit.Location, Hit.ImpactNormal.ToOrientationRotator());
 			DecalComponent->SetFadeScreenSize(0.0001f);

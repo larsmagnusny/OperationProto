@@ -36,7 +36,7 @@ private:
 	class USceneComponent* FP_MuzzleLocation;
 
 	UMaterialInterface* decal = nullptr;
-	UParticleSystem* particleSystem = nullptr;
+	UParticleSystem** particleSystems;
 
 	UPROPERTY(EditAnywhere, Category = Gameplay)
 	int ammoCount = 142;
@@ -47,7 +47,7 @@ private:
 	float FireTimer = 0.f;
 
 	UPROPERTY(EditAnywhere, Category = Gameplay)
-	float FireCooldown = 0.12f;
+	float FireCooldown = 0.08f;
 
 	bool hasFired = false;
 	
