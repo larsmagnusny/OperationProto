@@ -6,6 +6,7 @@
 #include "Weapon.h"
 #include "HandGun.generated.h"
 
+class USoundCue;
 /**
  * 
  */
@@ -26,7 +27,8 @@ public:
 
 	USkeletalMesh* Mesh;
 	UMaterialInterface* Material;
-	USoundBase* FireSound;
+	UAudioComponent* GunSoundPlayer;
+	USoundCue* FireSound;
 	USoundBase* EmptySound;
 	UAnimMontage* FireAnimation;
 private:

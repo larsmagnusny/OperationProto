@@ -4,9 +4,11 @@
 #include "OperationProtoCharacter.h"
 #include "Animation/AnimInstance.h"
 #include "Components/DecalComponent.h"
+#include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Particles/ParticleSystem.h"
+#include "Sound/SoundCue.h"
 
 UHandGun::UHandGun()
 {
@@ -27,7 +29,7 @@ UHandGun::UHandGun()
 	// Load misc
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshLoader(TEXT("SkeletalMesh'/Game/FirstPerson/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialLoader(TEXT("Material'/Game/FirstPerson/FPWeapon/Materials/M_FPGun.M_FPGun'"));
-	static ConstructorHelpers::FObjectFinder<USoundBase> FireSoundLoader(TEXT("SoundWave'/Game/FirstPerson/Audio/FirstPersonTemplateWeaponFire02.FirstPersonTemplateWeaponFire02'"));
+	static ConstructorHelpers::FObjectFinder<USoundCue> FireSoundLoader(TEXT("SoundCue'/Game/FirstPerson/Audio/GunCue.GunCue'"));
 	static ConstructorHelpers::FObjectFinder<USoundBase> EmptySoundLoader(TEXT("SoundWave'/Game/FirstPerson/Audio/GunClick.GunClick'"));
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> FireAnimationLoader(TEXT("AnimMontage'/Game/FirstPerson/Animations/FirstPersonFire_Montage.FirstPersonFire_Montage'"));
 
@@ -39,6 +41,15 @@ UHandGun::UHandGun()
 
 	decal = DecalLoader.Object;
 	particleSystem = ParticleLoader.Object;
+
+	GunSoundPlayer = CreateDefaultSubobject<UAudioComponent>(TEXT("HandGunSound"));
+	GunSoundPlayer->bAutoActivate = false;
+	GunSoundPlayer->SetupAttachment(this);
+
+	if (GunSoundPlayer->IsValidLowLevelFast())
+	{
+		GunSoundPlayer->SetSound(FireSound);
+	}
 }
 
 void UHandGun::BeginPlay()
@@ -110,7 +121,7 @@ void UHandGun::Fire(bool& canFireAfter)
 		// try and play the sound if specified
 		if (FireSound != NULL)
 		{
-			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetOwner()->GetActorLocation());
+			GunSoundPlayer->Play();
 		}
 
 		// try and play a firing animation if specified

@@ -6,6 +6,7 @@
 #include "Weapon.h"
 #include "MachineGun.generated.h"
 
+class USoundCue;
 /**
  * 
  */
@@ -26,7 +27,8 @@ public:
 
 	USkeletalMesh* Mesh;
 	UMaterialInterface* Material;
-	USoundBase* FireSound;
+	UAudioComponent* GunSoundPlayer;
+	USoundCue* FireSound;
 	USoundBase* EmptySound;
 	UAnimMontage* FireAnimation;
 private:
@@ -45,7 +47,7 @@ private:
 	float FireTimer = 0.f;
 
 	UPROPERTY(EditAnywhere, Category = Gameplay)
-	float FireCooldown = 0.1f;
+	float FireCooldown = 0.12f;
 
 	bool hasFired = false;
 	
