@@ -24,31 +24,7 @@ public:
 	virtual int GetAmmoCount() override;
 	virtual int GetMax() override;
 	virtual void AddAmmo(int amount) override;
-
-	USkeletalMesh* Mesh;
-	UMaterialInterface* Material;
-	UAudioComponent* GunSoundPlayer;
-	USoundCue* FireSound;
-	USoundBase* EmptySound;
-	UAnimMontage* FireAnimation;
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USceneComponent* FP_MuzzleLocation;
-
-	UMaterialInterface* decal = nullptr;
-	UParticleSystem** particleSystems;
-
-	UPROPERTY(EditAnywhere, Category = Gameplay)
-	int ammoCount = 142;
-
-	UPROPERTY(EditAnywhere, Category = Gameplay)
-	int maxAmmo = 142;
-
-	float FireTimer = 0.f;
-
-	UPROPERTY(EditAnywhere, Category = Gameplay)
-	float FireCooldown = 0.08f;
-
-	bool hasFired = false;
-	
+	class USceneComponent* FP_MuzzleLocation;	
 };

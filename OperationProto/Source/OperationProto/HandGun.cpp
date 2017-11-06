@@ -1,16 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "HandGun.h"
-#include "OperationProtoCharacter.h"
-#include "Animation/AnimInstance.h"
-#include "Components/DecalComponent.h"
-#include "Components/AudioComponent.h"
-#include "Components/StaticMeshComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "UObject/ConstructorHelpers.h"
-#include "Particles/ParticleSystem.h"
-#include "Sound/SoundCue.h"
-#include "Engine/StaticMeshActor.h"
 
 UHandGun::UHandGun()
 {

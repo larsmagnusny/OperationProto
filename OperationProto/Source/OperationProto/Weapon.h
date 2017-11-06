@@ -4,6 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "OperationProtoCharacter.h"
+#include "Animation/AnimInstance.h"
+#include "Components/DecalComponent.h"
+#include "Components/AudioComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Particles/ParticleSystem.h"
+#include "Sound/SoundCue.h"
+#include "Engine/StaticMeshActor.h"
 #include "Weapon.generated.h"
 
 /**
@@ -22,7 +32,27 @@ public:
 	virtual int GetAmmoCount();
 	virtual int GetMax();
 	virtual void AddAmmo(int amount);
-private:
-	USkeletalMesh* WeaponMesh = nullptr;
-	UMaterial* Material = nullptr;
+
+	USkeletalMesh* Mesh;
+	UMaterialInterface* Material;
+	UAudioComponent* GunSoundPlayer;
+	USoundCue* FireSound;
+	USoundBase* EmptySound;
+	UAnimMontage* FireAnimation;
+
+	UMaterialInterface* decal = nullptr;
+	UParticleSystem** particleSystems;
+
+	UPROPERTY(EditAnywhere, Category = Gameplay)
+	int ammoCount = 8;
+
+	UPROPERTY(EditAnywhere, Category = Gameplay)
+	int maxAmmo = 42;
+
+	float FireTimer = 0.f;
+
+	UPROPERTY(EditAnywhere, Category = Gameplay)
+	float FireCooldown = 0.3f;
+
+	bool hasFired = false;
 };
