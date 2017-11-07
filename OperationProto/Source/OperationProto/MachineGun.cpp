@@ -1,17 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "MachineGun.h"
-#include "OperationProtoCharacter.h"
-#include "Animation/AnimInstance.h"
-#include "Components/DecalComponent.h"
-#include "Components/AudioComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "UObject/ConstructorHelpers.h"
-#include "Particles/ParticleSystem.h"
-#include "Sound/SoundCue.h"
+#include "Enemy.h"
 
 UMachineGun::UMachineGun()
 {
+	FireCooldown = 0.08f;
+	ammoCount = 142;
+	maxAmmo = 142;
 	SetOnlyOwnerSee(true);			// only the owning player will see this mesh
 	bCastDynamicShadow = false;
 	CastShadow = false;
@@ -75,7 +71,10 @@ void UMachineGun::GetPointingAt(FHitResult & hit)
 	FVector Start = FP_MuzzleLocation->GetComponentLocation();
 	FVector End = Start + Rot.Vector() * 100000;
 
-	GetWorld()->LineTraceSingleByChannel(hit, Start, End, ECollisionChannel::ECC_Visibility);
+	FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
+	Params.bTraceComplex = true;
+
+	GetWorld()->LineTraceSingleByChannel(hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
 }
 
 void UMachineGun::Update(float DeltaTime)
@@ -109,11 +108,30 @@ void UMachineGun::Fire(bool & canFireAfter)
 		FVector Start = FP_MuzzleLocation->GetComponentLocation();
 		FVector End = Start + Rot.Vector() * 100000;
 
-		GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility);
+		FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
+		Params.bTraceComplex = true;
+
+		GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
 
 
 		if (Hit.Actor != nullptr)
 		{
+			// If the actor is an enemy, tell it to take damage
+			if (Hit.GetActor()->IsA(AEnemy::StaticClass()))
+			{
+				
+				AEnemy* Enemy = Cast<AEnemy>(Hit.GetActor());
+
+				if(Hit.BoneName == FName("neck_01"))
+					Enemy->ApplyDamage(100);
+				if (Hit.BoneName == FName("spine_03"))
+					Enemy->ApplyDamage(34);
+				if (Hit.BoneName == FName("pelvis") || Hit.BoneName == FName("spine_01") || Hit.BoneName == FName("spine_02"))
+					Enemy->ApplyDamage(10);
+				else
+					Enemy->ApplyDamage(5);
+			}
+
 			// Spawn a decal on the surface you hit, and maybe play a partice effect?
 			UParticleSystem* particleSystem = nullptr;
 
