@@ -11,6 +11,8 @@ AEnemy::AEnemy()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	TextRender = CreateDefaultSubobject<UTextRenderComponent>(TEXT("TextRenderer"));
+	TextRender->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -51,5 +53,10 @@ void AEnemy::ApplyDamage(int amount)
 
 		Capsule->SetCollisionProfileName(FName("Ragdoll"));
 	}
+}
+
+void AEnemy::PrintText(FString Text)
+{
+	TextRender->SetText(Text);
 }
 

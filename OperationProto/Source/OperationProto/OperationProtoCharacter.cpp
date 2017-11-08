@@ -22,6 +22,7 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 AOperationProtoCharacter::AOperationProtoCharacter()
 {
+	TeamId = FGenericTeamId(1);
 	PrimaryActorTick.bCanEverTick = true;
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
@@ -104,9 +105,6 @@ void AOperationProtoCharacter::SwitchWeaponDown()
 	else if (CurrentWeapon == 0)
 		CurrentWeapon = NumWeapons - 1;
 }
-
-//////////////////////////////////////////////////////////////////////////
-// Input
 
 void AOperationProtoCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -191,4 +189,14 @@ void AOperationProtoCharacter::AddAmmo(int amount)
 {
 	if(FP_Gun[CurrentWeapon])
 		FP_Gun[CurrentWeapon]->AddAmmo(amount);
+}
+
+FGenericTeamId AOperationProtoCharacter::GetGenericTeamId_Implementation() const
+{
+	return TeamId;
+}
+
+void AOperationProtoCharacter::SetGenericTeamId_Implementation(const FGenericTeamId & TeamID)
+{
+	TeamId = TeamID;
 }

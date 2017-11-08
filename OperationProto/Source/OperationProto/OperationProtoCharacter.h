@@ -5,13 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ParticleDefinitions.h"
+#include "GenericTeamAgentInterface.h"
 #include "OperationProtoCharacter.generated.h"
 
 class UInputComponent;
 class UWeapon;
 
 UCLASS(config=Game)
-class AOperationProtoCharacter : public ACharacter
+class AOperationProtoCharacter : public ACharacter, public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 public:
@@ -26,52 +27,39 @@ public:
 	void FireDown();
 	void FireUp();
 
-	/* Handles moving forward/backward */
 	void MoveForward(float Val);
-
-	/* Handles stafing movement, left and right */
 	void MoveRight(float Val);
-
-	/*
-	* Called via input to turn at a given rate.
-	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
 	void TurnAtRate(float Rate);
-
-	/*
-	* Called via input to turn look up/down at a given rate.
-	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
 	void LookUpAtRate(float Rate);
-	// APawn interface
-	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-	// End of APawn interface
 
-	/* Returns Mesh1P subobject **/
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "TEAM")
+	void SetGenericTeamId(const FGenericTeamId& TeamID);
+	void SetGenericTeamId_Implementation(const FGenericTeamId& TeamID);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "TEAM")
+	FGenericTeamId GetGenericTeamId() const;
+	FGenericTeamId GetGenericTeamId_Implementation() const;
+
+	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+
 	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
-	/** Returns FirstPersonCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
-	/* Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
 	class USkeletalMeshComponent* Mesh1P;
 
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	TArray<UWeapon*> FP_Gun;
 
-	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FirstPersonCameraComponent;
 
-	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
 
-	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 
-	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)
 	FVector GunOffset;
 
@@ -82,5 +70,7 @@ private:
 	bool firePressed = false;
 	int CurrentWeapon = 0;
 	int NumWeapons = 2;
+
+	FGenericTeamId TeamId;
 };
 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/TextRenderComponent.h"
 #include "Enemy.generated.h"
 
 UCLASS()
@@ -31,4 +32,8 @@ public:
 	int Health = 100;
 	USkeletalMeshComponent* MeshComponent = nullptr;
 	UCapsuleComponent* Capsule = nullptr;
+	UTextRenderComponent* TextRender = nullptr;
+
+	UFUNCTION(BlueprintCallable, Category = "Print Text")
+	void PrintText(FString Text);
 };
