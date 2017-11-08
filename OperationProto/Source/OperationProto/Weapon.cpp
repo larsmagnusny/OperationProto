@@ -4,7 +4,8 @@
 
 UWeapon::UWeapon()
 {
-
+	if (!Loader.IsInitialized())
+		Loader.Initialize();
 }
 
 void UWeapon::Update(float DeltaTime)

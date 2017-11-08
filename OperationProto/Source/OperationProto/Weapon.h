@@ -14,6 +14,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Sound/SoundCue.h"
 #include "Engine/StaticMeshActor.h"
+#include "ObjectLoader.h"
 #include "Weapon.generated.h"
 
 /**
@@ -40,8 +41,13 @@ public:
 	USoundBase* EmptySound;
 	UAnimMontage* FireAnimation;
 
-	UMaterialInterface* decal = nullptr;
+	UMaterialInterface** decals;
 	UParticleSystem** particleSystems;
+
+	static ObjectLoader Loader;
+
+	int numDecals = 2;
+	int numParticleSystems = 4;
 
 	UPROPERTY(EditAnywhere, Category = Gameplay)
 	int ammoCount = 8;

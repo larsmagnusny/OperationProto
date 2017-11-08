@@ -13,33 +13,24 @@ UHandGun::UHandGun()
 	FP_MuzzleLocation->SetupAttachment(this);
 	FP_MuzzleLocation->SetRelativeLocation(FVector(0.0f, 100.0f, 10.6f));
 
-	// Load Decal
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> DecalLoader(TEXT("MaterialInterface'/Game/FirstPerson/Textures/Decals/BulletHoledecal.BulletHoledecal'"));
+	Mesh = Cast<USkeletalMesh>(Loader.GetObject("SK_FPGun"));
+	Material = Cast<UMaterialInstance>(Loader.GetObject("M_FPGun"));
+	FireSound = Cast<USoundCue>(Loader.GetObject("GunCue"));
+	EmptySound = Cast<USoundBase>(Loader.GetObject("GunClick"));
+	FireAnimation = Cast<UAnimMontage>(Loader.GetObject("FirstPersonFire_Montage"));
 
-	// Load Particle System
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader01(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System.Hit_System'"));
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader02(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System_Wood.Hit_System_Wood'"));
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleLoader03(TEXT("ParticleSystem'/Game/FirstPerson/ParticleEffects/Hit_System_Metal.Hit_System_Metal'"));
+	decals = new UMaterialInterface*[numDecals];
 
-	// Load misc
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshLoader(TEXT("SkeletalMesh'/Game/FirstPerson/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"));
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> MaterialLoader(TEXT("Material'/Game/FirstPerson/FPWeapon/Materials/M_FPGun.M_FPGun'"));
-	static ConstructorHelpers::FObjectFinder<USoundCue> FireSoundLoader(TEXT("SoundCue'/Game/FirstPerson/Audio/GunCue.GunCue'"));
-	static ConstructorHelpers::FObjectFinder<USoundBase> EmptySoundLoader(TEXT("SoundWave'/Game/FirstPerson/Audio/GunClick.GunClick'"));
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> FireAnimationLoader(TEXT("AnimMontage'/Game/FirstPerson/Animations/FirstPersonFire_Montage.FirstPersonFire_Montage'"));
+	decals[0] = Cast<UMaterialInterface>(Loader.GetObject("BulletHoledecal"));
+	decals[1] = Cast<UMaterialInterface>(Loader.GetObject("BloodSplatter"));
+	
+	
+	particleSystems = new UParticleSystem*[numParticleSystems];
 
-	Mesh = MeshLoader.Object;
-	Material = MaterialLoader.Object;
-	FireSound = FireSoundLoader.Object;
-	EmptySound = EmptySoundLoader.Object;
-	FireAnimation = FireAnimationLoader.Object;
-
-	decal = DecalLoader.Object;
-	particleSystems = new UParticleSystem*[3];
-
-	particleSystems[0] = ParticleLoader01.Object;
-	particleSystems[1] = ParticleLoader02.Object;
-	particleSystems[2] = ParticleLoader03.Object;
+	particleSystems[0] = Cast<UParticleSystem>(Loader.GetObject("Hit_System"));
+	particleSystems[1] = Cast<UParticleSystem>(Loader.GetObject("Hit_System_Wood"));
+	particleSystems[2] = Cast<UParticleSystem>(Loader.GetObject("Hit_System_Metal"));
+	particleSystems[3] = Cast<UParticleSystem>(Loader.GetObject("BloodSplat"));
 
 	GunSoundPlayer = CreateDefaultSubobject<UAudioComponent>(TEXT("HandGunSound"));
 	GunSoundPlayer->bAutoActivate = false;
@@ -114,25 +105,11 @@ void UHandGun::Fire(bool& canFireAfter)
 
 		if (Hit.Actor != nullptr)
 		{
-			// If the actor is an enemy, tell it to take damage
-			if (Hit.GetActor()->IsA(AEnemy::StaticClass()))
-			{
-				AEnemy* Enemy = Cast<AEnemy>(Hit.GetActor());
-
-				if (Hit.BoneName == FName("neck_01"))
-					Enemy->ApplyDamage(100);
-				if (Hit.BoneName == FName("spine_03"))
-					Enemy->ApplyDamage(34);
-				if (Hit.BoneName == FName("pelvis") || Hit.BoneName == FName("spine_01") || Hit.BoneName == FName("spine_02"))
-					Enemy->ApplyDamage(10);
-				else
-					Enemy->ApplyDamage(5);
-			}
-
 			// Spawn a decal on the surface you hit, and maybe play a partice effect?
 			// Get the physics Material name, and spawn a fitting particlesystem based off that...
-
 			UParticleSystem* particleSystem = nullptr;
+
+			FRotator ParticleSystemRotation = Hit.ImpactNormal.ToOrientationRotator();
 
 			if (Hit.GetActor()->ActorHasTag(FName("Wood")))
 			{
@@ -151,15 +128,32 @@ void UHandGun::Fire(bool& canFireAfter)
 						Comp->Play();
 				}
 			}
+			else if (Hit.GetActor()->IsA(AEnemy::StaticClass()))
+			{
+				AEnemy* Enemy = Cast<AEnemy>(Hit.GetActor());
+
+				if (Hit.BoneName == FName("neck_01"))
+					Enemy->ApplyDamage(100);
+				if (Hit.BoneName == FName("spine_03"))
+					Enemy->ApplyDamage(34);
+				if (Hit.BoneName == FName("pelvis") || Hit.BoneName == FName("spine_01") || Hit.BoneName == FName("spine_02"))
+					Enemy->ApplyDamage(10);
+				else
+					Enemy->ApplyDamage(5);
+
+				particleSystem = particleSystems[3];
+
+				ParticleSystemRotation = Rot;
+			}
 			else
 			{
 				particleSystem = particleSystems[0];
 			}
 
-			UDecalComponent* DecalComponent = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decal, FVector(10, 10, 10), Hit.Location, Hit.ImpactNormal.ToOrientationRotator());
+			UDecalComponent* DecalComponent = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), decals[0], FVector(10, 10, 10), Hit.Location, Hit.ImpactNormal.ToOrientationRotator());
 			DecalComponent->SetFadeScreenSize(0.0001f);
 
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), particleSystem, Hit.Location, Hit.ImpactNormal.ToOrientationRotator(), true);
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), particleSystem, Hit.Location, ParticleSystemRotation, true);
 			UE_LOG(LogTemp, Warning, TEXT("Spawned Decal"));
 		}
 
