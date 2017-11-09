@@ -49,10 +49,9 @@ AOperationProtoCharacter::AOperationProtoCharacter()
 	// Create a gun here...
 
 	FP_Gun.Add(CreateDefaultSubobject<UHandGun>(TEXT("FP_Gun")));
-	//FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
 	FP_Gun[0]->SetupAttachment(RootComponent);
 	FP_Gun.Add(CreateDefaultSubobject<UMachineGun>(TEXT("FP_MachineGun")));
-	FP_Gun[0]->SetupAttachment(RootComponent);
+	FP_Gun[1]->SetupAttachment(RootComponent);
 }
 
 void AOperationProtoCharacter::BeginPlay()
@@ -177,12 +176,18 @@ void AOperationProtoCharacter::LookUpAtRate(float Rate)
 
 int AOperationProtoCharacter::GetAmmoCount()
 {
-	return FP_Gun[CurrentWeapon]->GetAmmoCount();
+	if (FP_Gun.Num() > 0)
+		return FP_Gun[CurrentWeapon] ? FP_Gun[CurrentWeapon]->GetAmmoCount() : 0;
+	else
+		return 0;
 }
 
 int AOperationProtoCharacter::GetMax()
 {
-	return FP_Gun[CurrentWeapon]->GetMax();
+	if (FP_Gun.Num() > 0)
+		return FP_Gun[CurrentWeapon] ? FP_Gun[CurrentWeapon]->GetMax() : 0;
+	else
+		return 0;
 }
 
 void AOperationProtoCharacter::AddAmmo(int amount)

@@ -6,6 +6,7 @@
 #include "TextureResource.h"
 #include "CanvasItem.h"
 #include "UObject/ConstructorHelpers.h"
+#include "EngineUtils.h"
 
 AOperationProtoHUD::AOperationProtoHUD()
 {
@@ -26,8 +27,11 @@ void AOperationProtoHUD::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Get the controlled character
-	ControlledCharacter = Cast<AOperationProtoCharacter>(GetWorld()->GetFirstPlayerController()->GetControlledPawn());
+	// Get the player and not spectators
+	for (TActorIterator<AOperationProtoCharacter> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		ControlledCharacter = *ActorItr;
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Beginplay"));
 
@@ -44,7 +48,8 @@ void AOperationProtoHUD::BeginPlay()
 
 int AOperationProtoHUD::GetAmmoCount()
 {
-	return ControlledCharacter->GetAmmoCount();
+	//return ControlledCharacter->GetAmmoCount();
+	return 0;
 }
 
 void AOperationProtoHUD::DrawHUD()
