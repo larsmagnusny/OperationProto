@@ -13,11 +13,11 @@ UHandGun::UHandGun()
 	FP_MuzzleLocation->SetupAttachment(this);
 	FP_MuzzleLocation->SetRelativeLocation(FVector(0.0f, 100.0f, 10.6f));
 
-	Mesh = Cast<USkeletalMesh>(Loader.GetObject("SK_FPGun"));
-	Material = Cast<UMaterialInstance>(Loader.GetObject("M_FPGun"));
+	Mesh = Cast<USkeletalMesh>(Loader.GetObject("Gun3"));
+	Material = Cast<UMaterialInstance>(Loader.GetObject("lambert1"));
 	FireSound = Cast<USoundCue>(Loader.GetObject("GunCue"));
 	EmptySound = Cast<USoundBase>(Loader.GetObject("GunClick"));
-	FireAnimation = Cast<UAnimMontage>(Loader.GetObject("FirstPersonFire_Montage"));
+	FireAnimation = Cast<UAnimMontage>(Loader.GetObject("Fire_Slow_Montage"));
 
 	decals = new UMaterialInterface*[numDecals];
 

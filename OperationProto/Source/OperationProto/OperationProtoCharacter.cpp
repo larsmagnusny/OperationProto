@@ -61,7 +61,7 @@ void AOperationProtoCharacter::BeginPlay()
 
 	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
 	for(int i = 0; i < NumWeapons; i++)
-		FP_Gun[i]->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+		FP_Gun[i]->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("Gun"));
 }
 
 void AOperationProtoCharacter::Tick(float DeltaTime)

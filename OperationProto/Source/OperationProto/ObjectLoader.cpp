@@ -14,7 +14,7 @@ void ObjectLoader::Initialize()
 	{
 		"MaterialInterface'/Game/FirstPerson/Textures/Decals/BulletHoledecal.BulletHoledecal'",
 		"Material'/Game/FirstPerson/ParticleEffects/BloodSplatter.BloodSplatter'",
-		"Material'/Game/FirstPerson/FPWeapon/Materials/M_FPGun.M_FPGun'"
+		"Material'/Game/FirstPerson/Character/Mesh/lambert1.lambert1'"
 	};
 
 	for (int i = 0; i < 3; i++)
@@ -37,7 +37,7 @@ void ObjectLoader::Initialize()
 
 	FString SkeletalMeshRef[]
 	{
-		"SkeletalMesh'/Game/FirstPerson/FPWeapon/Mesh/SK_FPGun.SK_FPGun'"
+		"SkeletalMesh'/Game/FirstPerson/Character/Mesh/Gun3.Gun3'"
 	};
 
 	for (int i = 0; i < 1; i++)
@@ -68,7 +68,7 @@ void ObjectLoader::Initialize()
 
 	FString AnimMontageRef[]
 	{
-		"AnimMontage'/Game/FirstPerson/Animations/FirstPersonFire_Montage.FirstPersonFire_Montage'"
+		"AnimMontage'/Game/FirstPerson/Character/Mesh/Fire_Slow_Montage.Fire_Slow_Montage'"
 	};
 
 	for (int i = 0; i < 1; i++)
