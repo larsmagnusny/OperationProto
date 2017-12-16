@@ -14,7 +14,7 @@ class OPERATIONPROTO_API UHandGun : public UWeapon
 public:
 	UHandGun();
 	virtual void BeginPlay() override;
-	virtual void GetPointingAt(FHitResult& hit) override;
+	virtual FRotator GetPointingAt(FHitResult& hit) override;
 	virtual void Update(float DeltaTime) override;
 	virtual void Fire(bool& canFireAfter) override;
 	virtual bool ReadyToFire() override;

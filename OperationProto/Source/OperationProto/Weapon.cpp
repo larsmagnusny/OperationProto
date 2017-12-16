@@ -13,9 +13,11 @@ void UWeapon::Update(float DeltaTime)
 
 }
 
-void UWeapon::GetPointingAt(FHitResult & hit)
+FRotator UWeapon::GetPointingAt(FHitResult & hit)
 {
 	hit = FHitResult();
+
+	return FRotator();
 }
 
 void UWeapon::Fire(bool& canFireAfter)

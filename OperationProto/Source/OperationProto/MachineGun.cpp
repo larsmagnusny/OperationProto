@@ -2,6 +2,7 @@
 
 #include "MachineGun.h"
 #include "Enemy.h"
+#include "Camera/CameraComponent.h"
 
 UMachineGun::UMachineGun()
 {
@@ -53,20 +54,24 @@ void UMachineGun::BeginPlay()
 	SetMaterial(0, Material);
 }
 
-void UMachineGun::GetPointingAt(FHitResult & hit)
+FRotator UMachineGun::GetPointingAt(FHitResult & hit)
 {
-	float Pitch = Cast<AOperationProtoCharacter>(GetOwner())->Mesh1P->GetComponentRotation().Pitch;
-	float Yaw = GetComponentRotation().Yaw + 90;
+	UCameraComponent* Camera = Cast<UCameraComponent>(GetOwner()->GetComponentByClass(UCameraComponent::StaticClass()));
 
-	FRotator Rot = FRotator(Pitch, Yaw, 0);
+	if (Camera)
+	{
+		FVector Start = Camera->GetComponentLocation();
+		FVector End = Start + Camera->GetForwardVector() * 100000;
 
-	FVector Start = FP_MuzzleLocation->GetComponentLocation();
-	FVector End = Start + Rot.Vector() * 100000;
+		FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
+		Params.bTraceComplex = true;
 
-	FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
-	Params.bTraceComplex = true;
+		GetWorld()->LineTraceSingleByChannel(hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
 
-	GetWorld()->LineTraceSingleByChannel(hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
+		return Camera->GetForwardVector().ToOrientationRotator();
+	}
+
+	return FRotator();
 }
 
 void UMachineGun::Update(float DeltaTime)
@@ -91,21 +96,8 @@ void UMachineGun::Fire(bool & canFireAfter)
 	{
 		// Raycast to object you are aiming at...
 		FHitResult Hit;
-
-		float Pitch = Cast<AOperationProtoCharacter>(GetOwner())->Mesh1P->GetComponentRotation().Pitch;
-		float Yaw = GetComponentRotation().Yaw + 90;
-
-		FRotator Rot = FRotator(Pitch, Yaw, 0);
-
-		FVector Start = FP_MuzzleLocation->GetComponentLocation();
-		FVector End = Start + Rot.Vector() * 100000;
-
-		FCollisionQueryParams Params = FCollisionQueryParams::DefaultQueryParam;
-		Params.bTraceComplex = true;
-
-		GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params);
-
-		FRotator ParticleSystemRotation = Hit.ImpactNormal.ToOrientationRotator();
+		FRotator ParticleSystemRotation;
+		FRotator Rot = GetPointingAt(Hit);
 
 		if (Hit.Actor != nullptr)
 		{

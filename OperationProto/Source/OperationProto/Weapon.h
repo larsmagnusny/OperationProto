@@ -27,7 +27,7 @@ class OPERATIONPROTO_API UWeapon : public USkeletalMeshComponent
 public:
 	UWeapon();
 	virtual void Update(float DeltaTime);
-	virtual void GetPointingAt(FHitResult& hit);
+	virtual FRotator GetPointingAt(FHitResult& hit);
 	virtual void Fire(bool& canFireAfter);
 	virtual bool ReadyToFire();
 	virtual int GetAmmoCount();
