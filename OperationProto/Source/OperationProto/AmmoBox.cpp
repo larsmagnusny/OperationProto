@@ -24,7 +24,7 @@ void AAmmoBox::BeginPlay()
 void AAmmoBox::OnPickup(AActor* OurActor, AActor * OtherActor)
 {
 	// Find the character and give him the ammo this box contains...
-	AOperationProtoCharacter* Character = Cast<AOperationProtoCharacter>(GetWorld()->GetFirstPlayerController()->GetControlledPawn());
+	AOperationProtoCharacter* Character = Cast<AOperationProtoCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 
 	if (Character)
 	{
