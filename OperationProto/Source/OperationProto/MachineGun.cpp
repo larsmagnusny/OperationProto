@@ -2,6 +2,7 @@
 
 #include "MachineGun.h"
 #include "Enemy.h"
+#include "TargetableActor.h"
 #include "Camera/CameraComponent.h"
 
 UMachineGun::UMachineGun()
@@ -135,6 +136,17 @@ void UMachineGun::Fire(bool & canFireAfter)
 					Enemy->ApplyDamage(5);
 
 				particleSystem = particleSystems[3];
+
+				ParticleSystemRotation = Rot;
+			}
+			else if (Hit.GetActor()->IsA(ATargetableActor::StaticClass()))
+			{
+				ATargetableActor* Target = Cast<ATargetableActor>(Hit.GetActor());
+
+				if (Target)
+					Target->ApplyDamage(100);
+
+				particleSystem = particleSystems[2];
 
 				ParticleSystemRotation = Rot;
 			}

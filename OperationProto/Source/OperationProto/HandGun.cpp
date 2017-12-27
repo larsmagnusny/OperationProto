@@ -2,6 +2,7 @@
 
 #include "HandGun.h"
 #include "Enemy.h"
+#include "TargetableActor.h"
 #include "Camera/CameraComponent.h"
 
 UHandGun::UHandGun()
@@ -39,7 +40,7 @@ UHandGun::UHandGun()
 
 	if (GunSoundPlayer->IsValidLowLevelFast())
 	{
-		GunSoundPlayer->SetSound(FireSound);
+GunSoundPlayer->SetSound(FireSound);
 	}
 }
 
@@ -117,7 +118,7 @@ void UHandGun::Fire(bool& canFireAfter)
 
 				if (Comp)
 				{
-					if(!Comp->IsPlaying())
+					if (!Comp->IsPlaying())
 						Comp->Play();
 				}
 			}
@@ -135,6 +136,17 @@ void UHandGun::Fire(bool& canFireAfter)
 					Enemy->ApplyDamage(5);
 
 				particleSystem = particleSystems[3];
+
+				ParticleSystemRotation = Rot;
+			}
+			else if (Hit.GetActor()->IsA(ATargetableActor::StaticClass()))
+			{
+				ATargetableActor* Target = Cast<ATargetableActor>(Hit.GetActor());
+
+				if (Target)
+					Target->ApplyDamage(100);
+
+				particleSystem = particleSystems[2];
 
 				ParticleSystemRotation = Rot;
 			}
